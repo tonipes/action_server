@@ -1,0 +1,41 @@
+- name: mpv_pause
+  desc: Pause
+  engine: mpv
+  parameters:
+    command: ["cycle", "pause"]
+
+- name: mpv_mute
+  desc: Mute
+  engine: mpv
+  parameters:
+    command: ["cycle", "mute"]
+
+- name: mpv_fullscreen
+  desc: Fullscreen
+  engine: mpv
+  parameters:
+    command: ["cycle", "fullscreen"]
+
+- name: mpv_next
+  desc: Next
+  engine: mpv
+  parameters:
+    command: ["playlist_next"]
+
+- name: mpv_prev
+  desc: Prev
+  engine: mpv
+  parameters:
+    command: ["playlist_prev"]
+
+- name: media_vol_down
+  desc: Volume Down
+  engine: media_key
+  parameters:
+    command: vol_down
+
+- name: media_vol_up
+  desc: Volume Up
+  engine: media_key
+  parameters:
+    command: vol_up

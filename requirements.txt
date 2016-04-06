@@ -1,0 +1,5 @@
+Cython==0.23.5
+falcon==0.3.0
+python-mimeparse==1.5.1
+PyYAML==3.11
+six==1.10.0
