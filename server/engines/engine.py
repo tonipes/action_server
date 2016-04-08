@@ -3,11 +3,6 @@ import falcon
 import socket
 import struct
 import threading
-import Queue
-
-ACT_OK = ('Action successful.', falcon.HTTP_200)
-ACT_FAIL = ('Action failed.', falcon.HTTP_503)
-EGN_NOT_ABLE = ('Engine not able to run action.', falcon.HTTP_503)
 
 class Engine(object):
 
@@ -15,4 +10,10 @@ class Engine(object):
         self.config = config
 
     def run_action(self, action):
-        pass
+        return ('Engine not implemented', falcon.HTTP_501)
+
+    def success_msg(self, msg):
+        return (msg, falcon.HTTP_200)
+
+    def error_msg(self, msg):
+        return (msg, falcon.HTTP_503)
