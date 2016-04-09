@@ -1,82 +1,62 @@
 - name: mpv_pause
   desc: Pause
   engine: mpv
+  icon: pause
   parameters:
     command: ["cycle", "pause"]
 
 - name: mpv_mute
   desc: Mute
   engine: mpv
+  icon: volume-low
   parameters:
     command: ["cycle", "mute"]
 
 - name: mpv_fullscreen
   desc: Fullscreen
   engine: mpv
+  icon: settings
   parameters:
     command: ["cycle", "fullscreen"]
 
 - name: mpv_next
   desc: Next
   engine: mpv
+  icon: arrow-right-a
   parameters:
     command: ["playlist_next"]
 
 - name: mpv_prev
   desc: Prev
   engine: mpv
+  icon: arrow-left-a
   parameters:
     command: ["playlist_prev"]
 
 - name: mpv_seek_fwd
   desc: Seek Forward
   engine: mpv
+  icon: fastforward
   parameters:
     command: ["seek", 30, "relative"]
 
 - name: mpv_seek_back
   desc: Seek Back
   engine: mpv
+  icon: rewind
   parameters:
     command: ["seek", -15, "relative"]
 
 - name: mpv_fun
   desc: Mpv Fun
   engine: mpv
+  icon: paw
   parameters:
     command: ["show-text", "This is Fun!"]
 
 - name: mpv_show_progress
   desc: Show Progress
   engine: mpv
+  icon: lightbulb
   parameters:
     command: ["show-progress"]
-
-- name: mpv_vol_up
-  desc: Volume Up
-  engine: mpv
-  parameters:
-    command: ["add", "volume", "2"]
-
-- name: mpv_vol_down
-  desc: Volume Down
-  engine: mpv
-  parameters:
-    command: ["add", "volume", "-2"]
-
-- name: mpv_file_name
-  desc: Show Filename
-  engine: mpv
-  parameters:
-    command: ["show-text", "${filename}"]
-# - name: media_vol_down
-#   desc: Volume Down
-#   engine: media_key
-#   parameters:
-#     command: vol_down
-#
-# - name: media_vol_up
-#   desc: Volume Up
-#   engine: media_key
-#   parameters:
-#     command: vol_up

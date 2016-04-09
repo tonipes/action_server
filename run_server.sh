@@ -1,2 +1,3 @@
 #!/bin/bash
-gunicorn -b 0.0.0.0:8000 server:app --reload
+gunicorn server:app --bind=0.0.0.0:8000 --reload --workers 2 --timeout 120 --log-level=debug 
+
