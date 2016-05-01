@@ -50,7 +50,7 @@ config = {
 ###########
 # Helpers #
 ###########
-´
+
 def sec_to_string(sec):
     sec = round(sec)
     m, s = divmod(sec, 60)
