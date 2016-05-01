@@ -37,7 +37,6 @@ class ModuleResource(Resource):
             res = [None] * len(item)
             for i, e in enumerate(item):
                 res[i] = (self._populate_item(e))
-                # res.append(self._populate_item(e))
         elif type(item) == dict:
             res = {}
             for k, v in item.items():

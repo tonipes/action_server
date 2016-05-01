@@ -1,4 +1,3 @@
-from server.engine import EngineConfiguration
 # Simple action commands.
 commands = {
     'action_pause':         ["cycle", "pause"],
