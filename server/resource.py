@@ -1,5 +1,6 @@
 import falcon
 import json
+import copy
 
 class Resource(object):
     def _get_parts(self, string):
@@ -17,6 +18,7 @@ class ActionResource(Resource):
         engine = self.engines.get(kwargs['engine_id'])
         action = kwargs['action_id']
         res = engine.run_action(action)
+        req.context['result'] = res.message
 
 class ModuleResource(Resource):
     def __init__(self, db, engines):
@@ -27,20 +29,22 @@ class ModuleResource(Resource):
         ''' Get all modules and their states '''
         modules = self.db.get_all()
         populated = self._populate_item(modules)
-
         req.context['result'] = populated
 
     def _populate_item(self, item):
-        ''' Populates item tree recursively. Modifies item'''
+        ''' Populates item tree recursively '''
         if type(item) == list:
+            res = [None] * len(item)
             for i, e in enumerate(item):
-                item[i] = self._populate_item(e)
+                res[i] = (self._populate_item(e))
+                # res.append(self._populate_item(e))
         elif type(item) == dict:
+            res = {}
             for k, v in item.items():
-                item[k] = self._populate_item(v)
+                res[k] = self._populate_item(v)
         else:
-            item = self._populate_field(item)
-        return item
+            res = self._populate_field(item)
+        return res
 
     def _populate_field(self, field):
         ''' Returns populated value of a field or field value if bare value '''

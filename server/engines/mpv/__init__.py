@@ -11,7 +11,13 @@ from .config import config
 class SocketResponse(engine.EngineResponse):
     def is_success(self):
         sp = super(SocketResponse, self).is_success()
-        return sp and self.message['error'] == 'success'
+        if 'error' in self.message:
+            return sp and self.message['error'] == 'success'
+        else:
+            # Sometimes there is no error key in response.
+            # It happens when seeking and seeking is not ready when response is sent
+            # We don't care about seek still going on, it is still a success.
+            return sp
 
 class MpvEngine(engine.Engine):
     def __init__(self, props):
@@ -38,7 +44,7 @@ class MpvEngine(engine.Engine):
 
         if res.is_success():
             return engine.EngineResponse(
-                engine.EngineResponse.SUCCESS, res.message['data'])
+                engine.EngineResponse.SUCCESS, res.message.get('data', None))
         else:
             return engine.EngineResponse(
                 engine.EngineResponse.ERROR, '')
@@ -58,7 +64,32 @@ class MpvEngine(engine.Engine):
             engine.EngineResponse.SUCCESS, res)
 
     def run_action(self, action_name):
-        command = self.config['actions'][action_name]
+        if action_name in self.config['actions']:
+            command = self.config['actions'][action_name]
+            res = self._send_action(command)
+
+        elif action_name in self.config['calculated_actions']:
+            response = self._get_calculated_command(action_name)
+            res = self._send_action(response.message)
+        else:
+            res = engine.EngineResponse(
+                engine.EngineResponse.ERROR, 'Action not found')
+        return res
+
+    def _get_calculated_command(self, action_name):
+        prop = self.config['calculated_actions'][action_name]
+        child_props_names = prop[0]
+        func = prop[1]
+        child_props = [self.get_property(n).message for n in child_props_names]
+        try:
+            res = func(*child_props)
+        except:
+            return engine.EngineResponse(
+                engine.EngineResponse.ERROR, 'Calc error')
+        return engine.EngineResponse(
+            engine.EngineResponse.SUCCESS, res)
+
+    def _send_action(self, command):
         data = self._pack_command(command)
         res = self._send(data)
         return res

@@ -10,6 +10,7 @@ config = {
         'action_seek_back':     ["seek", -15, "relative"],
         'action_fun':           ["show-text", "This is Fun!"],
         'action_show_progress': ["show-progress"],
+        'action_mute':          ["cycle", "mute"],
     },
 
     # Simple properties.
@@ -29,6 +30,10 @@ config = {
             lambda p, d: sec_to_string(p) + ' / ' + sec_to_string(d)
         ),
         'calc_progress_percent': (['prop_pos_percent'],
+            # Client needs progress between 0.0 and 1.0
+            lambda p: p / 100.0
+        ),
+        'calc_volume_percent': (['prop_volume'],
             # Client needs progress between 0.0 and 1.0
             lambda p: p / 100.0
         ),
