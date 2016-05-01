@@ -1,1 +1,1 @@
-Server for action project
+Server for omnitaro project

@@ -4,27 +4,27 @@ import uuid
 class ActionStorage(object):
     last_id = 0
 
-    def __init__(self, action_data):
+    def __init__(self, modules):
         def get_item_key_pair(action):
             key = self.get_new_id()
             action['id'] = key
             return (key, action)
 
-        paired = [get_item_key_pair(act) for act in action_data]
-        self.actions = dict(paired)
+        paired = [get_item_key_pair(module) for module in modules]
+        self.modules = dict(paired)
 
     def get_all(self):
-        return [value for key,value in self.actions.items()]
+        return [value for key,value in self.modules.items()]
 
     def get(self, id):
         try:
-            action = self.actions[id]
+            module = self.modules[id]
         except KeyError:
             raise falcon.HTTPNotFound()
-        return action
+        return module
 
     def get_new_id(self):
-        self.last_id = self.last_id +1
+        self.last_id = self.last_id + 1
         return str(self.last_id)
         # return str(uuid.uuid4())[:8]
 
@@ -34,7 +34,7 @@ class EngineStorage(object):
 
     def get(self, id):
         try:
-            action = self.engines[id]
+            engine = self.engines[id]
         except KeyError:
             raise falcon.HTTPNotFound()
-        return action
+        return engine

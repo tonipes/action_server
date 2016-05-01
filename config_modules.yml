@@ -1,0 +1,37 @@
+- title: $mpv.prop_title
+  type: text
+  icon: theaters
+
+- title: $mpv.calc_progress_percent
+  type: text
+  icon: settings
+
+- title: $mpv.calc_progress_text
+  type: progress
+  value: $mpv.calc_progress_percent
+  icon: $mpv.calc_icon_play_pause
+
+- type: buttons
+  buttons:
+    - icon: fast-rewind
+      action: mpv.action_seek_back
+
+    - icon: play-arrow
+      action: mpv.action_pause
+
+    - icon: fast-forward
+      action: mpv.action_seek_fwd
+
+- type: buttons
+  buttons:
+    - icon: storage
+      action: mpv.action_pause
+
+    - icon: fullscreen
+      action: mpv.action_fullscreen
+
+    - icon: short-text
+      action: mpv.action_show_progress
+
+    - icon: short-text
+      action: mpv.action_fun

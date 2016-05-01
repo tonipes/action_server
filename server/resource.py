@@ -1,47 +1,48 @@
 import falcon
+import json
 
 class Resource(object):
-    exclude_fields = []
+    def _get_parts(self, string):
+        if string[0] == '$':
+            return string[1:].split('.')
+        else:
+            return string.split('.')
 
-    def __init__(self, db):
-        self.db = db
-
-    def get_items(self, **kwargs):
-        pass
-
-    def on_get(self, req, resp, **kwargs):
-        got = self.get_items(**kwargs)
-        items = [self.get_fields(item) for item in got]
-        items = items[0] if len(items) == 1 else items
-        resp.status = falcon.HTTP_200
-        req.context['result'] = items
-
-    def get_fields(self, item):
-        ret = {}
-        for key, val in item.items():
-            if not key in self.exclude_fields:
-                ret[key] = val
-        return ret
-
-class ActionResourse(Resource):
-    exclude_fields = []
-
-class ActionListResource(ActionResourse):
-    def get_items(self, **kwargs):
-        return self.db.get_all()
-
-class ActionDetailResource(ActionResourse):
-    def __init__(self, db, engines):
-        super(ActionDetailResource, self).__init__(db)
+class ActionResource(Resource):
+    def __init__(self, engines):
         self.engines = engines
 
-    def get_items(self, **kwargs):
-        item_id = kwargs["action_id"]
-        return [self.db.get(item_id)]
-
     def on_post(self, req, resp, **kwargs):
-        action = self.get_items(**kwargs)[0]
-        engine = self.engines.get(action['engine'])
-        result = engine.run_action(action)
-        resp.status = result[1]
-        resp.body = result[0]
+        engine = self.engines.get(kwargs['engine_id'])
+        action = kwargs['action_id']
+        res = engine.run_action(action)
+
+class ModuleResource(Resource):
+    def __init__(self, db, engines):
+        self.db = db
+        self.engines = engines
+
+    def on_get(self, req, resp, **kwargs):
+        modules = self.db.get_all()
+        calc_mods = [self._populate_module(m) for m in modules]
+
+        req.context['result'] = calc_mods
+
+    def _populate_module(self, module):
+        populated = {k: self._populate_field(v) for k, v in module.items()}
+        return populated
+
+    def _populate_field(self, field):
+        if type(field) is str and len(field) > 0 and field[0] == '$':
+            return self._get_field(field)
+        else:
+            return field
+
+    def _get_field(self, field):
+        parts = self._get_parts(field)
+        engine = self.engines.get(parts[0])
+        response = engine.get_property(parts[1])
+        if response.is_success():
+            return response.message
+        else:
+            return 'Unknown'
