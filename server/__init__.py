@@ -6,6 +6,7 @@ from . import resource
 from . import storage
 
 from .engines.mpv import MpvEngine
+from .engines.cmus import CmusEngine
 
 def get_config(filename):
     with open(filename, 'r') as f:
@@ -24,6 +25,7 @@ engine_config = config.get('engine_config', None)
 
 engines = {
     'mpv': MpvEngine(engine_config.get('mpv', None)),
+    'cmus': CmusEngine(engine_config.get('cmus', None)),
 }
 
 db = storage.ActionStorage(modules)

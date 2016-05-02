@@ -122,35 +122,43 @@ class Engine(object):
     def _error(self, msg):
         return EngineResponse(EngineResponse.ERROR, msg)
 
-class SocketMixin(object):
+class EngineSocketError(Exception):
+    def __init__(self, msg):
+        super(EngineSocketError, self).__init__(msg)
 
-    def _send(self, data, path):
-        # TODO: Do not create new socket for each action
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+class SocketEngine(Engine):
+    def __init__(self, args, config):
+        super(SocketEngine, self).__init__(args, config)
+        self.socket_path = self.args.get('socket', '')
+
+    def _connect(self):
         try:
-            sock.connect(path)
-            sock.sendall(data)
-            result = self._receive(sock)
-            sock.close()
-        except IOError as e:
-            return ('error', None)
-        return ('success', json.loads(result))
+            self._socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self._socket.connect(self.socket_path)
+        except socket.error as e:
+            if e.errno == 2:
+                raise EngineSocketError(
+                    'No such file or directory: \'%s\'' % self.socket_path)
+            raise e
 
-    def _receive(self, sock):
-        data = b""
-        part = b""
-        done = False
-        while not done:
-            r, w, e = select.select([sock], [], [], 1)
-            if r:
-                part = sock.recv(1)
-                if not part:
-                    done = True
-                if not len(part) > 0:
-                    done = True
-                if part == b"\n":
-                    done = True
-                data += part
-            else:
-                done = True
-        return data.decode('utf-8')
+    def _disconnect(self):
+        self._socket.close()
+
+    def _reconnect(self):
+        self._disconnect()
+        self._connect()
+
+    def _send(self, cmd, buf=4096):
+        try:
+            self._socket.send(cmd)
+            return self._socket.recv(buf)
+        except socket.error as e:
+            if e.errno == 32:
+                raise EngineSocketError('Broken pipe')
+            elif e.errno == 107:
+                raise EngineSocketError(
+                    'Transport endpoint is not connected')
+            raise e
+
+    def __del__(self):
+        self._disconnect()

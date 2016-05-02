@@ -3,3 +3,5 @@ api_keys:
 engine_config:
   mpv:
     socket: /tmp/mpvsocket
+  cmus:
+    socket: /run/user/1000/cmus-socket

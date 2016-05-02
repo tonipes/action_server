@@ -3,7 +3,7 @@ import json
 from server import engine
 from .config import commands, calculated_commands, props, calculated_props
 
-class MpvEngine(engine.Engine, engine.SocketMixin):
+class MpvEngine(engine.SocketEngine):
     def __init__(self, args):
         config = engine.EngineConfiguration(
             args, commands, calculated_commands, props, calculated_props
@@ -22,10 +22,11 @@ class MpvEngine(engine.Engine, engine.SocketMixin):
         return self.send_command(command)
 
     def send_command(self, cmd):
-        data = self._pack_command(cmd)
-        res, data = self._send(data, self.args.get('socket', None))
-        r = engine.EngineResponse.SUCCESS if res == 'success' else engine.EngineResponse.ERROR
-        return engine.EngineResponse(r, data)
+        self._connect()
+        res = self._send(self._pack_command(cmd))
+        result_data = self._unpack_result(res)
+        # TODO Actually figure out if success or not
+        return engine.EngineResponse(engine.EngineResponse.SUCCESS, result_data)
 
     def _pack_command(self, command):
         ''' Packs command in json format that mpv understands'''
@@ -33,3 +34,14 @@ class MpvEngine(engine.Engine, engine.SocketMixin):
         ret['command'] = command
         data = json.dumps(ret, separators=",:")
         return data.encode("utf8", "strict") + b"\n"
+
+    def _unpack_result(self, result):
+        if result:
+            decoded = result.decode('utf-8')
+            # There might be multiple json enties
+            # We only need the first one
+            parts = decoded.split('\n')
+            json_data = json.loads(parts[0])
+            return json_data
+        else:
+            return None

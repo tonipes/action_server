@@ -12,6 +12,19 @@
   value: $mpv.calc_volume_percent
   icon: volume-up
 
+- type: buttons
+  buttons:
+    - icon: skip-next
+      action: cmus.action_next
+
+    - icon: skip-previous
+      action: cmus.action_prev
+
+    - icon: stop
+      action: cmus.action_stop
+
+    - icon: play-arrow
+      action: cmus.action_play_pause
 
 - type: buttons
   buttons:
