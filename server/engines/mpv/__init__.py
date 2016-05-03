@@ -12,19 +12,22 @@ class MpvEngine(engine.SocketEngine):
 
     def _get_plain_property(self, command):
         resp = self.send_command(command)
-        if resp.message:
+        if type(resp.message) is dict:
             msg = resp.message.get('data', None)
         else:
-            msg = None
+            msg = resp.message
         return engine.EngineResponse(resp.status, msg)
 
     def _send_action_command(self, command):
         return self.send_command(command)
 
     def send_command(self, cmd):
-        self._connect()
-        res = self._send(self._pack_command(cmd))
-        result_data = self._unpack_result(res)
+        try:
+            self._connect()
+            res = self._send(self._pack_command(cmd))
+            result_data = self._unpack_result(res)
+        except Exception as e:
+            return engine.EngineResponse(engine.EngineResponse.ERROR, str(e))
         # TODO Actually figure out if success or not
         return engine.EngineResponse(engine.EngineResponse.SUCCESS, result_data)
 

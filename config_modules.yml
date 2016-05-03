@@ -2,6 +2,12 @@
   type: text
   icon: theaters
 
+# - title: $cmus.prop_title
+#   subtext: $cmus.prop_artist
+#   type: text
+#   icon: music-note
+
+
 - title: $mpv.calc_progress_text
   type: progress
   value: $mpv.calc_progress_percent
@@ -11,20 +17,20 @@
   type: progress
   value: $mpv.calc_volume_percent
   icon: volume-up
-
-- type: buttons
-  buttons:
-    - icon: skip-next
-      action: cmus.action_next
-
-    - icon: skip-previous
-      action: cmus.action_prev
-
-    - icon: stop
-      action: cmus.action_stop
-
-    - icon: play-arrow
-      action: cmus.action_play_pause
+#
+# - type: buttons
+#   buttons:
+#     - icon: skip-next
+#       action: cmus.action_next
+#
+#     - icon: skip-previous
+#       action: cmus.action_prev
+#
+#     - icon: stop
+#       action: cmus.action_stop
+#
+#     - icon: play-arrow
+#       action: cmus.action_play_pause
 
 - type: buttons
   buttons:

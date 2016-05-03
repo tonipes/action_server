@@ -8,7 +8,8 @@ commands = {
 
 # Simple propertie commands.
 props = {
-
+    "prop_title": "title",
+    "prop_artist": "artist",
 }
 
 # Properties that need some custom calculation.
