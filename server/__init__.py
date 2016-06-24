@@ -7,6 +7,7 @@ from . import storage
 
 from .engines.mpv import MpvEngine
 from .engines.cmus import CmusEngine
+from .sink import Sink
 
 def get_config(filename):
     with open(filename, 'r') as f:
@@ -16,7 +17,6 @@ config = get_config('config_server.yml')
 modules = get_config('config_modules.yml')
 
 app = falcon.API(middleware=[
-    # middleware.CorsMiddleware(), # Probably not needed anymore
     middleware.AuthMiddleware(config['api_keys']),
     middleware.JSONTranslatorMiddleware()
 ])
@@ -25,14 +25,18 @@ engine_config = config.get('engine_config', None)
 
 engines = {
     'mpv': MpvEngine(engine_config.get('mpv', None)),
-    'cmus': CmusEngine(engine_config.get('cmus', None)),
+    # 'cmus': CmusEngine(engine_config.get('cmus', None)),
 }
 
-db = storage.ActionStorage(modules)
-engine_storage = storage.EngineStorage(engines)
+module_db = storage.ModuleStorage(modules)
+engine_db = storage.EngineStorage(engines)
 
-module_res = resource.ModuleResource(db, engines)
-module_run = resource.ActionResource(engines)
+module_res = resource.ModuleResource(module_db, engine_db)
+action_res = resource.ActionResource(engine_db)
+prop_res = resource.PropertyResource(engine_db)
 
-app.add_route('/modules', module_res)
-app.add_route('/action/{engine_id}/{action_id}', module_run)
+sink = Sink(module_res)
+app.add_sink(sink.get_sink, '/')
+
+app.add_route('/action/{engine_id}/{action_id}', action_res)
+app.add_route('/prop/{engine_id}/{prop_id}', prop_res)

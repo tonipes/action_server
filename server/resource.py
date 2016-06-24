@@ -1,6 +1,7 @@
 import falcon
 import json
 import copy
+from .engine import EngineException
 
 class Resource(object):
     def _get_parts(self, string):
@@ -16,9 +17,36 @@ class ActionResource(Resource):
     def on_post(self, req, resp, **kwargs):
         ''' Run an action '''
         engine = self.engines.get(kwargs['engine_id'])
-        action = kwargs['action_id']
-        res = engine.run_action(action)
-        req.context['result'] = res.message
+        if not engine:
+            resp.status = falcon.HTTP_404
+            req.context['result'] = "Engine not found"
+        else:
+            try:
+                res = engine.run_action(kwargs['action_id'])
+                req.context['result'] = res.message
+                resp.status = res.status
+            except EngineException as e:
+                resp.status = '569 Engine Error'
+                req.context['result'] = str(e)
+
+class PropertyResource(Resource):
+    def __init__(self, engines):
+        self.engines = engines
+
+    def on_get(self, req, resp, **kwargs):
+        ''' Get property value '''
+        engine = self.engines.get(kwargs['engine_id'])
+        if not engine:
+            resp.status = falcon.HTTP_404
+            req.context['result'] = "Engine not found"
+        else:
+            try:
+                res = engine.get_prop_value(kwargs['prop_id'])
+                req.context['result'] = res.message
+                resp.status = res.status
+            except EngineException as e:
+                resp.status = '569 Engine Error'
+                req.context['result'] = str(e)
 
 class ModuleResource(Resource):
     def __init__(self, db, engines):
@@ -27,9 +55,19 @@ class ModuleResource(Resource):
 
     def on_get(self, req, resp, **kwargs):
         ''' Get all modules and their states '''
-        modules = self.db.get_all()
-        populated = self._populate_item(modules)
-        req.context['result'] = populated
+        path = kwargs.get('path', [])
+        tree = self.db.get_from(path)
+        if not tree:
+            resp.status = falcon.HTTP_404
+            req.context['result'] = "Item not found"
+        else:
+            try:
+                populated = self._populate_item(tree)
+                req.context['result'] = populated
+            except EngineException as e:
+                resp.status = '569 Engine Error'
+                req.context['result'] = str(e)
+
 
     def _populate_item(self, item):
         ''' Populates item tree recursively '''
@@ -56,9 +94,9 @@ class ModuleResource(Resource):
         ''' Returns value for field '''
         parts = self._get_parts(field)
         engine = self.engines.get(parts[0])
-        response = engine.get_property(parts[1])
+        response = engine.get_prop_value(parts[1])
 
-        if response.is_success():
+        if response.message:
             return response.message
         else:
             return 'Unknown'

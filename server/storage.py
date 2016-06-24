@@ -1,32 +1,44 @@
 import falcon
 import uuid
 
-class ActionStorage(object):
-    last_id = 0
+class ModuleStorage(object):
 
-    def __init__(self, modules):
-        def get_item_key_pair(action):
-            key = self.get_new_id()
-            action['id'] = key
-            return (key, action)
+    def __init__(self, pages):
+        pages = self._build_tree(pages)
+        self.tree = pages
 
-        paired = [get_item_key_pair(module) for module in modules]
-        self.modules = dict(paired)
+    def _build_tree(self, tree):
+        new_tree = {}
+        if type(tree) is list:
+            new_tree = {self.get_item_key(i): self._build_tree(i) for i in tree}
+        elif type(tree) is dict:
+            for k, v in tree.items():
+                if type(v) is list:
+                    new_tree[k] = {self.get_item_key(i): self._build_tree(i) for i in v}
+                else:
+                    new_tree[k] = self._build_tree(v)
+        else:
+            new_tree = tree
+        return new_tree
 
-    def get_all(self):
-        return [value for key,value in self.modules.items()]
 
-    def get(self, id):
-        try:
-            module = self.modules[id]
-        except KeyError:
-            raise falcon.HTTPNotFound()
-        return module
+    def get_from(self, levels):
+        cur_tree = self.tree
+        for level in levels:
+            if level in cur_tree:
+                cur_tree = cur_tree[level]
+            else:
+                return None
+        return cur_tree
 
-    def get_new_id(self):
-        self.last_id = self.last_id + 1
-        return str(self.last_id)
-        # return str(uuid.uuid4())[:8]
+    def get_item_key(self, item):
+        if 'name' in item:
+            return self.slugify(item['name'])
+        else:
+            return str(uuid.uuid4())[:8]
+
+    def slugify(seld, name):
+        return name.lower().replace(' ', '_')
 
 class EngineStorage(object):
     def __init__(self, engines):
@@ -36,5 +48,5 @@ class EngineStorage(object):
         try:
             engine = self.engines[id]
         except KeyError:
-            raise falcon.HTTPNotFound()
+            return None
         return engine

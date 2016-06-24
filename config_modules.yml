@@ -1,66 +1,67 @@
-- title: $mpv.prop_title
-  type: text
-  icon: theaters
+pages:
+  - name: Video Info
+    modules:
+    - title: $mpv.title
+      type: text
+      icon: theaters
 
-# - title: $cmus.prop_title
-#   subtext: $cmus.prop_artist
-#   type: text
-#   icon: music-note
+    -
+      - title: $mpv.progress_text
+        type: progress
+        value: $mpv.pos_percent
+        icon:  $mpv.icon_play_pause
 
+      - title: $mpv.progress_text
+        type: progress
+        value: $mpv.pos_percent
+        icon:  $mpv.icon_play_pause
 
-- title: $mpv.calc_progress_text
-  type: progress
-  value: $mpv.calc_progress_percent
-  icon: $mpv.calc_icon_play_pause
+    - title: $mpv.volume
+      type: progress
+      value: $mpv.volume_percent
+      icon: volume-up
 
-- title: $mpv.prop_volume
-  type: progress
-  value: $mpv.calc_volume_percent
-  icon: volume-up
+  - name: Video Control
+    modules:
+      - type: buttons
+        buttons:
+          - icon: fast-rewind
+            action: mpv.seek_back
+
+          - icon: $mpv.icon_play_pause
+            action: mpv.pause
+
+          - icon: fast-forward
+            action: mpv.seek_fwd
+# - type: buttons
+#   buttons:
+#     - icon: fast-rewind
+#       action: mpv.seek_back
+#
+#     - icon: $mpv.icon_play_pause
+#       action: mpv.pause
+#
+#     - icon: fast-forward
+#       action: mpv.seek_fwd
 #
 # - type: buttons
 #   buttons:
-#     - icon: skip-next
-#       action: cmus.action_next
+#     - icon: fullscreen
+#       action: mpv.fullscreen
 #
-#     - icon: skip-previous
-#       action: cmus.action_prev
+#     - icon: short-text
+#       action: mpv.show_progress
 #
-#     - icon: stop
-#       action: cmus.action_stop
+#     - icon: short-text
+#       action: mpv.fun
 #
-#     - icon: play-arrow
-#       action: cmus.action_play_pause
-
-- type: buttons
-  buttons:
-    - icon: fast-rewind
-      action: mpv.action_seek_back
-
-    - icon: $mpv.calc_icon_play_pause
-      action: mpv.action_pause
-
-    - icon: fast-forward
-      action: mpv.action_seek_fwd
-
-- type: buttons
-  buttons:
-    - icon: fullscreen
-      action: mpv.action_fullscreen
-
-    - icon: short-text
-      action: mpv.action_show_progress
-
-    - icon: short-text
-      action: mpv.action_fun
-
-- type: buttons
-  buttons:
-    - icon: volume-down
-      action: mpv.calc_actions_volume_down
-
-    - icon: volume-mute
-      action: mpv.action_mute
-
-    - icon: volume-up
-      action: mpv.calc_actions_volume_up
+# - type: buttons
+#   buttons:
+#     - icon: volume-down
+#       action: mpv.volume_down
+#
+#     - icon: volume-mute
+#       action: mpv.mute
+#
+#     - icon: volume-up
+#       action: mpv.volume_up

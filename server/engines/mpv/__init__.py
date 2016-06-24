@@ -1,25 +1,20 @@
 import json
 
 from server import engine
-from .config import commands, calculated_commands, props, calculated_props
+from .config import props, actions
 
 class MpvEngine(engine.SocketEngine):
     def __init__(self, args):
-        config = engine.EngineConfiguration(
-            args, commands, calculated_commands, props, calculated_props
-        )
+        config = engine.EngineConfig(props, actions)
         super(MpvEngine, self).__init__(args, config)
 
-    def _get_plain_property(self, command):
-        resp = self.send_command(command)
-        if type(resp.message) is dict:
-            msg = resp.message.get('data', None)
-        else:
-            msg = resp.message
-        return engine.EngineResponse(resp.status, msg)
+    def _calc_prop_value(self, args):
+        res = self.send_command(args)
+        return res
 
-    def _send_action_command(self, command):
-        return self.send_command(command)
+    def _run_command(self, cmd):
+        res = self.send_command(cmd)
+        return res
 
     def send_command(self, cmd):
         try:
@@ -27,9 +22,12 @@ class MpvEngine(engine.SocketEngine):
             res = self._send(self._pack_command(cmd))
             result_data = self._unpack_result(res)
         except Exception as e:
-            return engine.EngineResponse(engine.EngineResponse.ERROR, str(e))
-        # TODO Actually figure out if success or not
-        return engine.EngineResponse(engine.EngineResponse.SUCCESS, result_data)
+            raise engine.EngineException("Error sending command. " + str(e))
+        # if 'error' not in result_data or 'data' not in result_data:
+        #     raise engine.EngineException("Invalid response")
+        # if result_data['error'] != 'success':
+        #     raise engine.EngineException("Request returned error" + result_data['data'])
+        return result_data['data']
 
     def _pack_command(self, command):
         ''' Packs command in json format that mpv understands'''
